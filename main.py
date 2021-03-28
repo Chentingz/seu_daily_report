@@ -31,6 +31,10 @@ def email_send(from_addr, email_password, smtp_server, to_addr, message):
     if len(from_addr) <=0 or len(email_password) <=0 or len(smtp_server) <=0 or len(to_addr) <=0:
         return None
 
+    print(from_addr)
+    print(smtp_server)
+    print(to_addr)
+
     msg = MIMEText(message, 'plain', 'utf-8')
     msg['From'] = format_addr("SEU Daily Reporter {}".format(from_addr))
     msg['To'] = format_addr("Admin {}".format(to_addr))

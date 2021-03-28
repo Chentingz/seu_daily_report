@@ -139,7 +139,7 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
 | ---------------- | --------------- | ---------------------- |
 | `from_addr`      | xxx@seu.edu.cn  | 发送执行结果的邮箱地址 |
 | `email_password` | ***             | 发送执行结果的邮箱密码 |
-| `smtp_server`    | smtp@seu.edu.cn | 发送邮箱的SMTP服务器   |
+| `smtp_server`    | smtp.seu.edu.cn | 发送邮箱的SMTP服务器   |
 | `to_addr`        | xxx@example.com | 接收邮箱地址           |
 
 > 提示：将`from_addr`、`email_password`、`smtp_server`、`to_addr`留空，即可禁用邮件推送功能。

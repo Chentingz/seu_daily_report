@@ -8,7 +8,7 @@
          "server_chan_key": "此处改为你的server酱SCKEY, 留空即为不启用",
          "from_addr": "此处填写发送打卡结果的邮箱地址，例如：name@seu.edu.cn，name一般为9位学号,留空即为不启用",
          "email_password": "此处填写邮箱密码******",
-         "smtp_server": "此处填写SMTP服务器地址（与发送邮箱地址要是同一个域名），例如：smtp@seu.edu.cn",
+         "smtp_server": "此处填写SMTP服务器地址（与发送邮箱地址要是同一个域名），例如：smtp.seu.edu.cn",
          "to_addr": "此处填写接收打卡结果的邮箱地址，例如：name@example.com"
       }
    ],
