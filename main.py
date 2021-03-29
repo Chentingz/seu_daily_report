@@ -231,7 +231,7 @@ def daily_report(drv, cfg):
     time.sleep(1)
     find_element_by_class_keyword(drv, 'mint-msgbox-confirm', '确定').click()  # 点击确认按钮
 
-    result_msg =  str(cfg['username']) + ' 每日健康申报成功!\n' + "今日体温填报：" + str(temp / 10) + "℃"
+    result_msg =  str(cfg['username']) + ' 每日健康申报成功!\r\n' + "今日体温填报：" + str(temp / 10) + "℃"
     server_chan_send(cfg['server_chan_key'], result_msg, '')
     email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'], result_msg)
 
