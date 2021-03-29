@@ -9,7 +9,7 @@
 这是一个每日健康上报及入校申请自动化脚本，通过正确配置之后，可以实现每日自动健康上报和入校申请，并通过微信或邮件推送上报结果。
 
 # 一、依赖
-## 1. WebDriver
+## 1. WebDriver下载
 **如果你用的浏览器是[Google Chrome](https://www.google.cn/chrome/) ，那么**
 
 1. 请检查安装的Chrome版本：浏览器右上角的3个点-帮助-关于Google Chrome。
@@ -32,8 +32,8 @@
 
 > 提示：本脚本目录中已经放置`chromedriver_90.0.4430.24`和`geckodriver_v0.29.0`，若运行有问题，请下载与浏览器相同版本的WebDriver进行替换。
 
-## 2. `Python`依赖
-本脚本依赖`selenium`包与`requests`包，使用`pip`进行安装。
+## 2. `Python`依赖安装
+本脚本需要使用`Python3.x`运行，并依赖`selenium`包与`requests`包，可使用`pip`进行安装。
 
 ```shell script
 # Windows
@@ -48,27 +48,20 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
 
 1. 将脚本目录中的`config_sample.json`重命名为`config.json`。
 
-2. 打开`config.json`，根据需求填写相关字段，字段描述如下。
-   | 字段名                      | 描述                                      | 是否必填 |
-   | --------------------------- | ----------------------------------------- | -------- |
-   | `username`                  | 一卡通账号（9位）                         | YES      |
-   | `password`                  | 一卡通密码                                | YES      |
-   | `temp_range`                | 体温范围                                  | YES      |
-   | `places`                    | 申请入校区域                              | NO       |
-   | `reasons`                   | 申请入校理由                              | NO       |
-   | `server_chan_key`           | Server酱SCKEY                             | NO       |
-   | `from_addr`                 | 发送执行结果的邮箱地址（建议使用SEU邮箱） | NO       |
-   | `email_password`            | 发送邮箱密码                              | NO       |
-   | `smtp_server`               | 发送邮箱的SMTP服务器地址                  | NO       |
-   | `to_adr`                    | 接收执行结果的邮箱地址                    | NO       |
-   | `enable_enter_campus_apply` | 开启/关闭入校申请功能（默认关闭）         | YES      |
-   | `browser`                   | 选择浏览器类型（chrome / firefox）        | YES      |
-
-   向其中的`username`与`password`填入您的一卡通账号与密码。
-
-   在`temp_range`中可自定义您想要填写的体温范围。 ***请一定要在确定自己体温正常的情况下使用此功能。***
+2. 打开`config.json`，根据需求填写相关字段，字段描述如下表所示。
+   | 字段名                      | 描述                                                | 是否必填 |
+   | --------------------------- | --------------------------------------------------- | -------- |
+   | `username`                  | 一卡通账号（9位）                                   | YES      |
+   | `password`                  | 一卡通密码                                          | YES      |
+   | `temp_range`                | 体温范围                                            | YES      |
+   | `places`                    | 申请入校区域                                        | NO       |
+   | `reasons`                   | 申请入校理由                                        | NO       |
+   | `server_chan_key`           | Server酱SCKEY                                       | NO       |
+   | `email_addr`                | 接收推送的邮箱地址                                  | NO       |
+   | `enable_enter_campus_apply` | 开启/关闭入校申请功能（默认关闭，填写true / false） | YES      |
+   | `browser`                   | 选择浏览器类型（chrome / firefox）                  | YES      |
    
-   在`places`与`reasons`中还可以自定义您每日想要填写的入校区域与入校理由，其中的第一个元素为周一，最后一个元素为周日。`reasons`的取值`0-7`所对应的理由如下所示。
+   `places`与`reasons`中还可以自定义您每日想要填写的入校区域与入校理由，其中的第一个元素为周一，最后一个元素为周日。`reasons`的取值`0-7`所对应的理由如下表所示。
    
    |          理由          | 对应数字 |
    | :--------------------: | :------: |
@@ -80,14 +73,7 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
    |          开会          |    5     |
    |    往返无线谷实验室    |    6     |
    |          其他          |    7     |
-   
-   `server_chan_key`用于配置Server酱推送功能。
-   
-   `from_addr`、`email_password`、`smtp_server`、`to_addr`用于配置邮件推送功能。
-   
-   除此之外，通过将`enable_enter_campus_apply`设置为`true`来启动入校申请或`false`来关闭入校申请。
-   
-   `browser`用于设置使用的浏览器，可填写`chrome`或`firefox`
+
 
 ### 配置实现多个用户上报
 
@@ -103,10 +89,7 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
          "places": [],
          "reasons": [],
          "server_chan_key": "",
-         "from_addr": "",
-         "email_password": "",
-         "smtp_server": "",
-         "to_addr": ""
+         "email_addr": ""
       },
         {
          "username": "xxxxxx", "password": "***",
@@ -114,10 +97,7 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
          "places": [],
          "reasons": [],
          "server_chan_key": "",
-         "from_addr": "",
-         "email_password": "",
-         "smtp_server": "",
-         "to_addr": ""
+         "email_addr": ""
       }
    ]
 ```
@@ -133,18 +113,9 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
 
 ### 使用 邮件 推送上报结果
 
-本脚本支持邮件推送，您只需要在`config.json`文件中填写`from_addr`、`email_password`、`smtp_server`、`to_addr`字段。即可启用邮件推送功能。
+本脚本支持邮件推送，您只需要在`config.json`文件中填写`email_addr`字段。即可启用邮件推送功能。
 
-例如：填写字段如下，则会使用SEU邮箱将脚本执行结果推送至指定邮箱
-
-| 字段名           | 值              | 描述                   |
-| ---------------- | --------------- | ---------------------- |
-| `from_addr`      | xxx@seu.edu.cn  | 发送执行结果的邮箱地址 |
-| `email_password` | ***             | 发送执行结果的邮箱密码 |
-| `smtp_server`    | smtp.seu.edu.cn | 发送邮箱的SMTP服务器   |
-| `to_addr`        | xxx@example.com | 接收邮箱地址           |
-
-> 提示：将`from_addr`、`email_password`、`smtp_server`、`to_addr`留空，即可禁用邮件推送功能。
+> 提示：将`email_addr`留空，即可禁用邮件推送功能。
 
 ## 2. 运行脚本
 在正式运行脚本之前，请确认脚本目录下的文件和下面相同：
@@ -162,7 +133,11 @@ pip3 install requests selenium -i https://pypi.douban.com/simple --user
 ```
 
 之后，使用`python`运行`main.py`或直接运行`auto.bat`（Windows平台下）即可。
-您也可以将脚本与运行环境部署到云服务器上，并设置定时计划任务，实现每日自动上报。
+
+
+## 3. 配置脚本自动运行
+
+可以将脚本部署到服务器上，设置定时计划任务，实现每日自动上报。
 
 下面介绍如何在Windows上设置实现每日自动上报。
 
