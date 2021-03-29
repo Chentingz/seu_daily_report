@@ -17,32 +17,33 @@ from email.utils import parseaddr, formataddr
 date_of_today = datetime.datetime.now()  # 当日日期
 date_of_tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)  # 次日日期
 current_folder = os.path.split(os.path.realpath(__file__))[0]  # 当前py文件路径
-# 疫情每日上报和入校申请URL
+# 每日健康上报和入校申请URL
 daily_report_url = 'http://ehall.seu.edu.cn/qljfwapp2/sys/lwReportEpidemicSeu/*default/index.do#/dailyReport'
 enter_campus_apply_url = 'http://ehall.seu.edu.cn/qljfwapp3/sys/lwWiseduElectronicPass/*default/index.do'
 server_chan_url = 'http://sc.ftqq.com/{}.send/'
 
-def email_send(from_addr, email_password, smtp_server, to_addr, message):
-    """发送上报结果至指定邮箱.
+def email_send(username, password, remote_email_addr, message):
+    """
+    用SEU邮箱发送上报结果至指定邮箱
 
     Args:
-        msg: str.
+        username: 一卡通账号
+        password: 一卡通密码
+        remote_email_addr: 指定邮箱地址
+        msg: 上报结果
     """
-    if len(from_addr) <=0 or len(email_password) <=0 or len(smtp_server) <=0 or len(to_addr) <=0:
+    if len(remote_email_addr) <=0 :
         return None
 
-    print(from_addr)
-    print(smtp_server)
-    print(to_addr)
-
+    seu_email_addr = str(username) + "@seu.edu.cn"
     msg = MIMEText(message, 'plain', 'utf-8')
-    msg['From'] = format_addr("SEU Daily Reporter {}".format(from_addr))
-    msg['To'] = format_addr("Admin {}".format(to_addr))
+    msg['From'] = format_addr("SEU Daily Reporter {}".format(seu_email_addr))
+    msg['To'] = format_addr("Admin {}".format(remote_email_addr))
     msg['Subject'] = Header("每日上报结果", "utf-8").encode()
 
-    server = smtplib.SMTP_SSL(smtp_server, 465)  # 启用SSL发信, 端口一般是465
-    server.login(from_addr, email_password)
-    server.sendmail(from_addr, [to_addr], msg.as_string())
+    server = smtplib.SMTP_SSL("smtp.seu.edu.cn", 465)  # 启用SSL发信, 端口一般是465
+    server.login(seu_email_addr, password)
+    server.sendmail(seu_email_addr, [remote_email_addr], msg.as_string())
     server.quit()
 
 
@@ -209,9 +210,9 @@ def daily_report(drv, cfg):
     time.sleep(1)
     add_btn = drv.find_element_by_xpath('//*[@id="app"]/div/div[1]/button[1]')  # 找到新增按钮
     if add_btn.text == '退出':
-        result_msg = str(cfg['username']) + ' 今日已经进行过健康申报！'
+        result_msg = str(cfg['username']) + ' 今日已经进行过健康上报！'
         server_chan_send(cfg['server_chan_key'], result_msg, '')
-        email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'], result_msg)
+        email_send(cfg['username'], cfg['password'], cfg['email_addr'],  result_msg)
         return
     else:
         add_btn.click()  # 点击新增填报按钮
@@ -231,9 +232,9 @@ def daily_report(drv, cfg):
     time.sleep(1)
     find_element_by_class_keyword(drv, 'mint-msgbox-confirm', '确定').click()  # 点击确认按钮
 
-    result_msg =  str(cfg['username']) + ' 每日健康申报成功!\r\n' + "今日体温填报：" + str(temp / 10) + "℃"
+    result_msg =  str(cfg['username']) + ' 每日健康上报成功!\r\n' + "今日体温填报：" + str(temp / 10) + "℃"
     server_chan_send(cfg['server_chan_key'], result_msg, '')
-    email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'], result_msg)
+    email_send(cfg['username'], cfg['password'], cfg['email_addr'],  result_msg)
 
 
 def enter_campus_apply(drv, cfg):
@@ -243,7 +244,7 @@ def enter_campus_apply(drv, cfg):
     if check_todays_report(drv):  # 今日已进行入校申请
         result_msg = str(cfg['username']) + ' 今日已经进行过入校申请！'
         server_chan_send(cfg['server_chan_key'], result_msg, '')
-        email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'], result_msg)
+        email_send(cfg['username'], cfg['password'], cfg['email_addr'],  result_msg)
         return
 
     drv.find_element_by_xpath('//*[@id="app"]/div/div[3]').click()  # 找到新增按钮
@@ -253,7 +254,7 @@ def enter_campus_apply(drv, cfg):
     if popup is not None:  # 如果弹出了对话框
         result_msg = str(cfg['username']) + ' 当前不在入校申请填报时间!'
         server_chan_send(cfg['server_chan_key'], result_msg, '')
-        email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'], result_msg)
+        email_send(cfg['username'], cfg['password'], cfg['email_addr'],  result_msg)
         return
 
     wait_element_by_class_name(drv, 'emapm-item', 30)  # 等待界面加载
@@ -279,7 +280,7 @@ def enter_campus_apply(drv, cfg):
 
     result_msg = str(cfg['username'])+' 每日入校申请成功!'
     server_chan_send(cfg['server_chan_key'], result_msg, '')
-    email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'],  result_msg)
+    email_send(cfg['username'], cfg['password'], cfg['email_addr'],   result_msg)
 
 
 def run(profile, config):
@@ -288,7 +289,7 @@ def run(profile, config):
     elif config["browser"] == "firefox":
         driver = webdriver.Firefox(executable_path=os.path.join(current_folder, "geckodriver.exe"))
     try:
-        # 打开疫情填报网站
+        # 打开健康填报网站
         driver.get(daily_report_url)
         # 登录
         login(driver, profile)
@@ -304,7 +305,7 @@ def run(profile, config):
         exception = traceback.format_exc()
         result_msg = profile['username'] + ' 出错啦,请尝试手动重新填报'
         server_chan_send(profile['server_chan_key'], result_msg, exception)
-        email_send(cfg['from_addr'], cfg['email_password'], cfg['smtp_server'], cfg['to_addr'],result_msg)
+        email_send(cfg['username'], cfg['password'], cfg['email_addr'], result_msg)
     finally:
         time.sleep(3)
         driver.quit()  # 退出整个浏览器
